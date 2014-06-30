@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Save this page</title>
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/jquery-ui-1.10.4.min.js"></script>
+        <script src="js/popup.js"></script>
+        <link href="css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
+        <link href="css/popup.css" rel="stylesheet">
+    </head>
+    <body>
+
+        <div id='tabs-min'>
+            <ul style="padding-top: 0;">
+                <li><a id='pan1' href="#tab1">Set a timer</a></li>
+                <li><a id='pan2' href="#tab2">Timers list</a></li>
+            </ul>
+            <div id='tab1'>
+                <pre id="url" class="bordered"></pre>
+                <p id='error'></p>
+                <br>
+                <form action="popup.html" id="formin">
+                    <label for="timein">In: <input id="timein" type="number" min="0" placeholder="10" style="width:40px;" required> minutes</label>
+                    <input id='submit' type="submit" value="Remind me !">
+                </form>
+            </div>
+            <div id='tab2'>
+                list ?
+                <div id="list">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

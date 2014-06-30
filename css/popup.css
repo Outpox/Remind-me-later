@@ -1,0 +1,99 @@
+/* 
+    Created on : Jun 12, 2014, 9:37:19 AM
+    Author     : outpox
+*/
+
+html {
+    font-family: "Open Sans",Arial,"Lucida Grande",sans-serif;
+    font-size: 13px;
+    /*height: 400px;*/
+    width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body {
+    margin: 5px;
+    margin-top: 0;
+    margin-bottom: 0;
+    background-color: whitesmoke;
+}
+.bordered {
+    /*    border: 2px solid #000;
+        border-radius: 5px;*/
+    font-family: "monospace";
+    font-size: 12px;
+    padding: 2px;
+    margin: 2px 0px;
+    text-align: center;
+    background-color: #b2d8ff;
+    border-radius: 5px;
+}
+
+#error {
+    font-size: 10px;
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+#error pre {
+    display: inline;
+    background-color: #d6d6d6;
+}
+
+#timein {
+    margin-left: 3%;
+}
+
+#tabs-min { 
+    background: transparent; 
+    border: none; 
+} 
+#tabs-min .ui-widget-header { 
+    background: transparent; 
+    border: none; 
+    border-bottom: 1px solid #c0c0c0; 
+    -moz-border-radius: 0px; 
+    -webkit-border-radius: 0px; 
+    border-radius: 0px; 
+} 
+#tabs-min .ui-tabs-nav {
+    height: 1.7em; 
+    text-align: center;
+}
+#tabs-min .ui-tabs-nav li{
+    display: inline-block;
+    float: none;
+    top: 0px;
+    margin: 0em;
+    padding-bottom: 0;
+}
+#tabs-min .ui-tabs-nav .ui-state-default { 
+    background: transparent; 
+    border: none; 
+} 
+#tabs-min .ui-tabs-nav .ui-state-active { 
+    background: transparent url(../img/uiTabsArrow.png) no-repeat bottom center; 
+    border: none; 
+} 
+#tabs-min .ui-tabs-nav .ui-state-default a { 
+    color: #7c7a7a; 
+} 
+#tabs-min .ui-tabs-nav .ui-state-active a { 
+    color: #439e2b; 
+}
+a:focus{
+    outline: none; 
+}
+.ui-state-focus:focus {
+    outline:none;
+}
+#tab1, #tab2 {
+    padding-left: 0 ;
+    padding-right: 0 ;
+    padding-bottom: 7px;
+}
+#pan1, #pan2 {
+    padding-top: 0;
+}
