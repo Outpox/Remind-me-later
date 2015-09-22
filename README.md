@@ -11,7 +11,7 @@ to remind you the link and open it for you. I've got several planned features li
 ### What is this repository for? ###
 
 * Sources of my Google Chrome extension : "Remind me later"
-* Version 0.8
+* Version 0.9
 * https://chrome.google.com/webstore/detail/remind-me-later/kjmlffmiibifbajomhhoojpgmdiccknj
 
 This extension is a fun project to me. I'm just trying some new stuff.  
@@ -31,14 +31,3 @@ You're browsing the internet, you need to do something else and need to close a 
 * Click the Clock icon of Remind me later
 * Select a duration
 * Voila, the link will be reminded later, you can now close this tab
-
-### Contribution guidelines ###
-
-* If you feel like giving me some feedback about my code, it's greatly appreciated. 
-* This is my first Google Chrome extension
-* The purpose is just to get some more experience with JavaScript
-
-### Who do I talk to? ###
-
-* I'm Guillaume "Outpox" Migeon, 21 y.o. from France.
-* I'm working in IT and will soon finish my studies to be a web developer.
