@@ -1,34 +1,54 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Save this page</title>
-        <script src="js/jquery-1.11.0.min.js"></script>
-        <script src="js/jquery-ui-1.10.4.min.js"></script>
-        <script src="js/popup.js"></script>
-        <link href="css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
-        <link href="css/popup.css" rel="stylesheet">
-    </head>
-    <body>
+<head>
+    <title>Remind me later !</title>
+    <link href="css/popup.css" rel="stylesheet">
+</head>
+<body>
+<main>
+    <div style="text-align: center;">
+        <h3>Remind me <select name="typeLength" id="">
+            <option value="in">in</option>
+            <option value="on">on</option>
+        </select></h3>
+    </div>
+    <div class="formContainer">
+        <form id="timePicker">
+            <input type="time">
+            <input type="submit" value="Go!">
+        </form>
+        <form id="datePicker">
+            <input id="inputTime" type="datetime-local">
+            <input id="submit" type="submit" value="Go!">
+        </form>
+    </div>
+    <div id="timerList">
 
-        <div id='tabs-min'>
-            <ul style="padding-top: 0;">
-                <li><a id='pan1' href="#tab1">Set a timer</a></li>
-                <li><a id='pan2' href="#tab2">Timers list</a></li>
-            </ul>
-            <div id='tab1'>
-                <pre id="url" class="bordered"></pre>
-                <p id='error'></p>
-                <br>
-                <form action="popup.html" id="formin">
-                    <label for="timein">In: <input id="timein" type="number" min="0" placeholder="10" style="width:40px;" required> minutes</label>
-                    <input id='submit' type="submit" value="Remind me !">
-                </form>
-            </div>
-            <div id='tab2'>
-                list ?
-                <div id="list">
-                </div>
-            </div>
-        </div>
-    </body>
+    </div>
+</main>
+
+<!--<div id='tabs-min'>-->
+    <!--<ul style="padding-top: 0;">-->
+        <!--<li><a id='pan1' href="#tab1">Set a timer</a></li>-->
+        <!--<li><a id='pan2' href="#tab2">Timers list</a></li>-->
+    <!--</ul>-->
+    <!--<div id='tab1'>-->
+        <!--<pre id="url" class="bordered"></pre>-->
+        <!--<p id='error'></p>-->
+        <!--<br>-->
+        <!--<form action="popup.html" id="formin">-->
+            <!--<label for="timein">In: <input id="timein" type="number" min="0" placeholder="10" style="width:40px;"-->
+                                           <!--required> minutes</label>-->
+            <!--<input id='submit' type="submit" value="Remind me !">-->
+        <!--</form>-->
+    <!--</div>-->
+    <!--<div id='tab2'>-->
+        <!--list ?-->
+        <!--<div id="list">-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+
+<script src="js/popup.js"></script>
+</body>
 </html>

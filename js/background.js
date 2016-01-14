@@ -1,4 +1,15 @@
 $(function() {
+    var timerCounter = 0;
+    var timerList = [];
+
+    var Timer = function (url, date, created) {
+        this.id = timerCounter++;
+        this.url = url;
+        this.end = date;
+        this.created = created || Date.now();
+        timerList.push(this);
+    };
+
     var timers = [], id;
 
     /**
@@ -17,7 +28,7 @@ $(function() {
                 title: "Remind me later !",
                 message: ('You asked me to remind you :\n' + url + ' \n' + timeHR + ' minutes ago. Click to open it !'),
                 iconUrl: 'img/icon.png'
-            }
+            };
             chrome.notifications.create(idTimerString, options, function(cb) {
             });
         }, time);
@@ -95,4 +106,26 @@ $(function() {
             deleteTimer(cb);
         });
     });
+
+    chrome.runtime.onMessage.addListener(
+        function(request, sender, sendResponse) {
+            switch(request.action) {
+                case "newTimer":
+                    var timer = new Timer();
+                    sendResponse({message: "OK", mail: responseMail});
+                    break;
+                case "updateMailList":
+                    mailList.updateValues(request.value);
+                    mailList.saveAndSync();
+                    break;
+                case "getMailList":
+                    sendResponse({message: "OK", mailList: mailList.content});
+                    break;
+                case "deleteMail":
+                    mailList.deleteMail(request.value);
+                    sendResponse({message: "OK", mailList: mailList.content});
+                    break;
+            }
+        }
+    );
 });

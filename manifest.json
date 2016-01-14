@@ -1,6 +1,6 @@
 {
     "name": "Remind me later",
-    "version": "0.8",
+    "version": "0.9",
     "manifest_version": 2,
     "description": "Reminds you a website in a given time",
     "permissions": [
@@ -20,7 +20,7 @@
 	"default_popup": "popup.html"
     },
     "background": {
-	"scripts": ["js/jquery-1.11.0.min.js", "js/background.js"],
+	"scripts": ["js/background.js"],
 	"persistent": true
     }
 }
