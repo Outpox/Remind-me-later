@@ -1,131 +1,137 @@
-$(function() {
-    var timerCounter = 0;
-    var timerList = [];
-
-    var Timer = function (url, date, created) {
-        this.id = timerCounter++;
-        this.url = url;
-        this.end = date;
-        this.created = created || Date.now();
-        timerList.push(this);
-    };
-
-    var timers = [], id;
-
-    /**
-     * This function set the timer with setTimeout()
-     * @param {String} url
-     * @param {String} time
-     * @returns nothing
-     */
-    function setTimer(url, time) {
-        var timeHR = time / 1000 / 60;
-        var idTimerString = saveTimer(url, timeHR);
-        console.log(idTimerString);
-        setTimeout(function() {
-            var options = {
-                type: "basic",
-                title: "Remind me later !",
-                message: ('You asked me to remind you :\n' + url + ' \n' + timeHR + ' minutes ago. Click to open it !'),
-                iconUrl: 'img/icon.png'
-            };
-            chrome.notifications.create(idTimerString, options, function(cb) {
-            });
-        }, time);
-
-    }
-
-    /**
-     * Save a timer object in the array of timers. It also assign an id wich is returned.
-     * @param {String} url
-     * @param {Number} time
-     * @returns {Number} id
-     */
-    function saveTimer(url, time) {
-//	id = (id === undefined) ? id = 0 : id++;
-        if (id === undefined)
-            id = 0;
-        else
-            id++;
-        var timer = {id: id, url: url, time: time};
-        timers[id] = timer;
-        console.log('timer saved ' + id);
-        return id.toString();
-    }
-
-    /**
-     * Delete the given timer from the array.
-     * @param {Number} idTimer
-     */
-    function deleteTimer(idTimer) {
-        console.log('before timers');
-        getCurrentTimers();
-        if (typeof timers[idTimer] != "undefined")
-            timers.splice(idTimer, 1);
-        console.log('index deleted');
-        getCurrentTimers();
-    }
-
-    /**
-     * Returns all the active timers
-     * @returns {Array timer}
-     */
-    function getCurrentTimers() {
-        timers.forEach(function(i) {
-            console.log(i);
+'use strict';
+/////////////////////////////////////////////////////////////////////////
+//////////////////////////////// CLASSES ////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+class TimerList extends Array {
+    existTimer(id) {
+        this.forEach(timer => {
+            if (timer.id == id) return true;
         });
+        return false;
     }
 
-    /**
-     * Return the url from the given ID
-     * @param {String} idTimer
-     * @returns {String} url
-     */
-    function getURL(idTimer) {
-        if (typeof timers[idTimer] != "undefined") {
-            return timers[idTimer].url;
-        } else {
-            return "about:blank";
-        }
-    }
-
-    chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-        if (request.action === 'setTimer') {
-            var time;
-            time = (request.time === null) ? '' : request.time;
-            setTimer(request.url, time);
-        }
-        if (request.action === 'getAllTimers') {
-            getCurrentTimers();
-        }
-    });
-
-    chrome.notifications.onClicked.addListener(function(cb) {
-        open(getURL(cb));
-        chrome.notifications.clear(cb, function() {
-            deleteTimer(cb);
+    getTimer(id) {
+        this.forEach(timer => {
+            if (timer.id == id) return timer;
         });
-    });
+        return null;
+    }
 
-    chrome.runtime.onMessage.addListener(
-        function(request, sender, sendResponse) {
-            switch(request.action) {
-                case "newTimer":
-                    var timer = new Timer();
-                    sendResponse({message: "OK", mail: responseMail});
-                    break;
-                case "updateMailList":
-                    mailList.updateValues(request.value);
-                    mailList.saveAndSync();
-                    break;
-                case "getMailList":
-                    sendResponse({message: "OK", mailList: mailList.content});
-                    break;
-                case "deleteMail":
-                    mailList.deleteMail(request.value);
-                    sendResponse({message: "OK", mailList: mailList.content});
-                    break;
+    removeTimer(id) {
+        var timer;
+        var self = this;
+        for (var i = 0; i < this.length; i++) {
+            timer = timerList[i];
+            if (timer.id = id) {
+                self = self.splice(i, 1);
+                return true;
             }
         }
-    );
+        return false;
+    }
+}
+
+class Timer {
+    /**
+     * @param url {String} - Url to save
+     * @param expire {int} - Timestamp of the end date
+     */
+    constructor(url, expire) {
+        this.id = timerCount++;
+        this.url = url;
+        this.expire = expire;
+        this.created = Date.now();
+        this.edited = null;
+        timerList.push(this);
+    }
+
+    update(url, expire) {
+        this.url = url;
+        this.expire = expire;
+        this.edited = Date.now();
+    }
+}
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+const REFRESH_INTERVAL = 5000;
+
+var timerList = new TimerList();
+var timerCount = 0;
+
+main();
+
+setInterval(() => {
+    main();
+}, REFRESH_INTERVAL);
+
+function main() {
+    console.log(timerList);
+    console.log(typeof timerList);
+}
+
+function verifyTimerData(url, expireDate) {
+    if (!url) {
+        return ERROR_INVALID_URL
+    }
+    if (expireDate < Date.now()) {
+        return ERROR_BAD_DATE;
+    }
+    return true;
+}
+
+function verifyUpdateTimerData(id, url, expireDate) {
+    var verification = verifyTimerData(url, expireDate);
+    if (verification === true) {
+        if (timerList.existTimer(id)) {
+            return true;
+        }
+        else {
+            return ERROR_NO_SUCH_TIMER;
+        }
+    }
+    else {
+        return verification;
+    }
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log(request);
+    var verification;
+    switch (request.action) {
+        case 'newTimer':
+            verification = verifyTimerData(request.data.url, request.data.expire);
+            if (verification === true) {
+                sendResponse({status: 'OK', timer: new Timer(request.data.url, request.data.expire)});
+            } else {
+                sendResponse({status: 'NOK', error: verification});
+            }
+            break;
+        case 'getAllTimer':
+            sendResponse({status: 'OK', timerList: timerList});
+            break;
+        case 'updateTimer':
+            verification = verifyUpdateTimerData(request.data.id, request.data.url, request.data.expire);
+            if (verification === true) {
+                var timer = timerList.getTimer(id);
+                timer.update(request.data.url, request.data.expire);
+                sendResponse({status: 'OK', timer: timer});
+            }
+            break;
+        case 'removeTimer':
+        {
+            if (timerList.existTimer(request.data.id)) {
+                timerList.removeTimer(request.data.id);
+                sendResponse({status: 'OK', timerList: timerList});
+            }
+            else {
+                sendResponse({status: 'NOK', error: ERROR_NO_SUCH_TIMER});
+            }
+        }
+    }
 });
+
+const ERROR_INVALID_URL = {code: 1, message: 'URL is not valid.'};
+const ERROR_BAD_DATE = {code: 2, message: 'Expire date must be in the future.'};
+const ERROR_NO_SUCH_TIMER = {code: 3, message: 'The timer you wish to edit doesn\'t exists'};
