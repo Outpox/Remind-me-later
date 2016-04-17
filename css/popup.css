@@ -7,3 +7,19 @@ html, body {
 .formContainer {
     text-align: center;
 }
+
+.hidden {
+    display: none;
+}
+
+#url {
+    font-size: 15px;
+}
+
+#error {
+    color: red;
+}
+
+#inputTime {
+    width: 50px;
+}

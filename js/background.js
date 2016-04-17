@@ -50,6 +50,7 @@ class Timer {
         this.expire = expire;
         this.created = Date.now();
         this.edited = null;
+        this.disabled = false;
         timerList.push(this);
     }
 
@@ -58,12 +59,18 @@ class Timer {
         this.expire = expire;
         this.edited = Date.now();
     }
+
+    remove() {
+        var self = this;
+        timerList.removeTimer(self.id);
+    }
 }
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 
-const REFRESH_INTERVAL = 5000;
+//In milliseconds
+const REFRESH_INTERVAL = 1000;
 
 var timerList = new TimerList();
 var timerCount = 0;
@@ -76,7 +83,43 @@ setInterval(() => {
 
 function main() {
     console.log(timerList);
-    console.log(typeof timerList);
+    checkForExpiredTimers();
+}
+
+function checkForExpiredTimers() {
+    var now = Date.now();
+    timerList.forEach(timer => {
+        if (!timer.disabled && timer.expire > now) {
+            timer.disabled = true;
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'img/icon128.png',
+                title: 'Remind me Later!',
+                message: 'You asked me to remind you ' + cutUrl(timer.url) + ' !',
+                buttons: [{title: 'Open'}, {title: 'Ok'}]
+            });
+            chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
+                if (buttonIndex == 0) {
+                    window.open(timer.url);
+                }
+                timer.remove();
+                updatePopupTimerList();
+                chrome.notifications.clear(notificationId);
+            })
+        }
+    });
+}
+
+function cutUrl(url) {
+    var max = 36;
+    if (url.length > max) {
+        var diff = url.length - max;
+        diff = Math.floor(diff / 2);
+        var fhalf = url.substr(0, Math.floor(url.length / 2) - diff);
+        var shalf = url.substr(Math.floor(url.length / 2) + diff, url.length);
+        return (fhalf + '[...]' + shalf);
+    }
+    return url;
 }
 
 function verifyTimerData(url, expireDate) {
@@ -102,6 +145,13 @@ function verifyUpdateTimerData(id, url, expireDate) {
     else {
         return verification;
     }
+}
+
+function updatePopupTimerList() {
+    chrome.runtime.sendMessage({
+        action: "updateTimerList",
+        data: {timerList: timerList}
+    });
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -137,6 +187,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 sendResponse({status: 'NOK', error: ERROR_NO_SUCH_TIMER});
             }
         }
+            break;
+        case 'removeAllTimer':
+            timerList = new TimerList();
+            sendResponse({status: 'OK', timerList: timerList});
     }
 });
 
