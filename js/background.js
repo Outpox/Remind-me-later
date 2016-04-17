@@ -4,16 +4,24 @@
 /////////////////////////////////////////////////////////////////////////
 class TimerList extends Array {
     existTimer(id) {
-        this.forEach(timer => {
-            if (timer.id == id) return true;
-        });
+        var timer;
+        for (var i = 0; i < this.length; i++) {
+            timer = timerList[i];
+            if (timer.id === id) {
+                return true;
+            }
+        }
         return false;
     }
 
     getTimer(id) {
-        this.forEach(timer => {
-            if (timer.id == id) return timer;
-        });
+        var timer;
+        for (var i = 0; i < this.length; i++) {
+            timer = timerList[i];
+            if (timer.id = id) {
+                return timer;
+            }
+        }
         return null;
     }
 
@@ -22,7 +30,7 @@ class TimerList extends Array {
         var self = this;
         for (var i = 0; i < this.length; i++) {
             timer = timerList[i];
-            if (timer.id = id) {
+            if (timer.id === id) {
                 self = self.splice(i, 1);
                 return true;
             }
