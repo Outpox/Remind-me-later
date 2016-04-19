@@ -120,6 +120,22 @@ function newTimer(url, expire) {
         if (resp.status === 'OK') {
             clearError();
             newTimerNotification(url, expire);
+            updateTimerList(resp.timerList);
+        }
+        else {
+            handleError(resp.error);
+        }
+    });
+}
+
+function removeTimer(id) {
+    chrome.runtime.sendMessage({
+        action: "removeTimer",
+        data: {id: id}
+    }, resp => {
+        console.log(resp);
+        if (resp.status === 'OK') {
+            updateTimerList(resp.timerList);
         }
         else {
             handleError(resp.error);
@@ -141,7 +157,14 @@ function newTimerNotification(url, expire) {
 }
 
 function updateTimerList(newTimerList) {
-    if (newTimerList) timerList = newTimerList;
+    if (newTimerList != undefined) timerList = newTimerList;
+
+    timerList.innerHTML = '';
+
+    // while (timerList.firstChild) {
+    //     timerList.removeChild(timerList.firstChild);
+    // }
+
     timerList.forEach(timer => {
         var row = document.createElement('tr');
 
@@ -149,18 +172,32 @@ function updateTimerList(newTimerList) {
         urlCol.appendChild(document.createTextNode(cutUrl(timer.url, true)));
 
         var expireCol = document.createElement('td');
+        expireCol.classList.add('expire');
         var secondsLeft = Math.floor((timer.expire - Date.now()) / 1000);
         var secondLeftNode = document.createTextNode(secondsLeft.toString());
-        setInterval(() => {
-            secondLeftNode.innerHTML = Math.floor((timer.expire - Date.now()) / 1000);
-        }, 1000);
         expireCol.appendChild(secondLeftNode);
 
         var dateCol = document.createElement('td');
         dateCol.appendChild(document.createTextNode(new Date(timer.expire).toLocaleString()));
 
         var actionCol = document.createElement('td');
-        actionCol.appendChild(document.createTextNode(''));
+        let del = document.createElement('span');
+        let delText = document.createTextNode('D');
+        del.addEventListener('click', e => {
+            removeTimer(timer.id);
+        });
+        let open = document.createElement('span');
+        let openText = document.createTextNode('O');
+        open.addEventListener('click', e => {
+            window.open(timer.url);
+        });
+        del.classList.add('pointerCursor');
+        open.classList.add('pointerCursor');
+        del.appendChild(delText);
+        open.appendChild(openText);
+        actionCol.appendChild(del);
+        actionCol.appendChild(document.createTextNode(' | '));
+        actionCol.appendChild(open);
 
         row.appendChild(urlCol);
         row.appendChild(expireCol);
@@ -172,10 +209,31 @@ function updateTimerList(newTimerList) {
 
     if (timerList.length > 0) {
         table.classList.remove('hidden');
+        decrementTimersExpiration();
     }
     else {
-        if (!timerList.classList.contains('remove')) {
+        if (!table.classList.contains('hidden')) {
             table.classList.add('hidden');
+        }
+    }
+}
+
+function decrementTimersExpiration() {
+    let expireCols = document.getElementsByClassName('expire');
+    for (let i = 0; i < expireCols.length; i++) {
+        let expire = expireCols[i];
+        if (parseInt(expire.innerHTML) > 0) {
+            setInterval(()=> {
+                if (parseInt(expire.innerHTML) > 0) {
+                    expire.innerHTML = parseInt(expire.innerHTML) - 1;
+                }
+                else {
+                    expire.innerHTML = 'Expired';
+                }
+            }, 1000);
+        }
+        else {
+            expire.innerHTML = 'Expired';
         }
     }
 }
