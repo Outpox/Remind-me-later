@@ -161,7 +161,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'newTimer':
             verification = verifyTimerData(request.data.url, request.data.expire);
             if (verification === true) {
-                sendResponse({status: 'OK', timer: new Timer(request.data.url, request.data.expire)});
+                new Timer(request.data.url, request.data.expire);
+                sendResponse({status: 'OK', timerList: timerList});
             } else {
                 sendResponse({status: 'NOK', error: verification});
             }
