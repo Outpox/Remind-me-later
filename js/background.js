@@ -89,7 +89,7 @@ function main() {
 function checkForExpiredTimers() {
     var now = Date.now();
     timerList.forEach(timer => {
-        if (!timer.disabled && timer.expire > now) {
+        if (!timer.disabled && timer.expire < now) {
             timer.disabled = true;
             chrome.notifications.create({
                 type: 'basic',
@@ -111,13 +111,13 @@ function checkForExpiredTimers() {
 }
 
 function cutUrl(url) {
-    var max = 36;
+    var max = 38;
     if (url.length > max) {
         var diff = url.length - max;
         diff = Math.floor(diff / 2);
-        var fhalf = url.substr(0, Math.floor(url.length / 2) - diff);
-        var shalf = url.substr(Math.floor(url.length / 2) + diff, url.length);
-        return (fhalf + '[...]' + shalf);
+        var fHalf = url.substr(0, Math.floor(url.length / 2) - diff);
+        var sHalf = url.substr(Math.floor(url.length / 2) + diff, url.length);
+        return (fHalf + '[...]' + sHalf);
     }
     return url;
 }
