@@ -2,7 +2,7 @@ var url,
     errorSpan = document.getElementById('error'),
     timeForm = document.getElementById('timeForm'),
     dateTimeForm = document.getElementById('dateTimeForm'),
-    timerTypeInput = document.getElementById('timerType'),
+    timerTypeSelect = document.getElementById('timerType'),
     inputTime = document.getElementById('inputTime'),
     inputDateTime = document.getElementById('inputDateTime'),
     timeSubmit = document.getElementById('timeSubmit'),
@@ -28,16 +28,29 @@ chrome.tabs.query({
 
 main();
 
-timerTypeInput.addEventListener('change', e => {
-    var timerType = timerTypeInput.value;
+switch (localStorage.getItem('mode')) {
+    case 'in':
+        timerTypeSelect.value = 'in';
+        showIn();
+        break;
+    case 'on':
+        timerTypeSelect.value = 'on';
+        showOn();
+        break;
+    default:
+        timerTypeSelect.value = 'in';
+        showIn();
+        break;
+}
+
+timerTypeSelect.addEventListener('change', e => {
+    var timerType = timerTypeSelect.value;
     switch (timerType) {
         case 'in' :
-            timeForm.classList.remove('hidden');
-            dateTimeForm.classList.add('hidden');
+            showIn();
             break;
         case 'on':
-            dateTimeForm.classList.remove('hidden');
-            timeForm.classList.add('hidden');
+            showOn();
             break;
         default:
             break;
@@ -82,17 +95,17 @@ function main() {
 }
 
 function cutUrl(url, notification) {
-    var max = 36;
-    if (url.length > max) {
-        var diff = url.length - max;
+    var max = 40;
+    var diff = url.length - max;
+    if (url.length > max && diff > 3) {
         diff = Math.floor(diff / 2);
-        var fhalf = url.substr(0, Math.floor(url.length / 2) - diff);
-        var shalf = url.substr(Math.floor(url.length / 2) + diff, url.length);
+        var fHalf = url.substr(0, Math.floor(url.length / 2) - diff);
+        var sHalf = url.substr(Math.floor(url.length / 2) + diff, url.length);
         if (!notification) {
-            return (fhalf + '[&hellip;]' + shalf);
+            return (fHalf + '[&hellip;]' + sHalf);
         }
         else {
-            return (fhalf + '[...]' + shalf);
+            return (fHalf + '[...]' + sHalf);
         }
     }
     return url;
@@ -146,9 +159,13 @@ function updateTimerList(newTimerList) {
         var dateCol = document.createElement('td');
         dateCol.appendChild(document.createTextNode(new Date(timer.expire).toLocaleString()));
 
+        var actionCol = document.createElement('td');
+        actionCol.appendChild(document.createTextNode(''));
+
         row.appendChild(urlCol);
         row.appendChild(expireCol);
         row.appendChild(dateCol);
+        row.appendChild(actionCol);
 
         timerListEl.appendChild(row);
     });
@@ -161,6 +178,22 @@ function updateTimerList(newTimerList) {
             table.classList.add('hidden');
         }
     }
+}
+
+function saveTimerMode(mode) {
+    localStorage.setItem('mode', mode);
+}
+
+function showIn() {
+    timeForm.classList.remove('hidden');
+    dateTimeForm.classList.add('hidden');
+    saveTimerMode('in');
+}
+
+function showOn() {
+    dateTimeForm.classList.remove('hidden');
+    timeForm.classList.add('hidden');
+    saveTimerMode('on');
 }
 
 function clearError() {
