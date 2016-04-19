@@ -6,7 +6,10 @@ var url,
     inputTime = document.getElementById('inputTime'),
     inputDateTime = document.getElementById('inputDateTime'),
     timeSubmit = document.getElementById('timeSubmit'),
-    dateTimeSubmit = document.getElementById('dateTimeSubmit');
+    dateTimeSubmit = document.getElementById('dateTimeSubmit'),
+    table = document.getElementById('table'),
+    timerList = [],
+    timerListEl = document.getElementById('timerList');
 
 
 chrome.tabs.query({
@@ -22,6 +25,8 @@ chrome.tabs.query({
             errorSpan.innerHTML = 'Error chrome:// links cannot be saved';
         }
     });
+
+main();
 
 timerTypeInput.addEventListener('change', e => {
     var timerType = timerTypeInput.value;
@@ -57,9 +62,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(request);
     switch (request.action) {
         case 'updateTimerList':
-            timerList = request.timerList;
+            updateTimerList(request.timerList);
+            break;
     }
 });
+
+function main() {
+    chrome.runtime.sendMessage({
+        action: "getTimerList"
+    }, resp => {
+        console.log(resp);
+        if (resp.status === 'OK') {
+            updateTimerList(resp.timerList);
+        }
+        else {
+            handleError(resp.error);
+        }
+    });
+}
 
 function cutUrl(url, notification) {
     var max = 36;
@@ -103,8 +123,44 @@ function newTimerNotification(url, expire) {
     });
 
     setTimeout(()=> {
-        window.close();
+        // window.close();
     }, 50);
+}
+
+function updateTimerList(newTimerList) {
+    if (newTimerList) timerList = newTimerList;
+    timerList.forEach(timer => {
+        var row = document.createElement('tr');
+
+        var urlCol = document.createElement('td');
+        urlCol.appendChild(document.createTextNode(cutUrl(timer.url, true)));
+
+        var expireCol = document.createElement('td');
+        var secondsLeft = Math.floor((timer.expire - Date.now()) / 1000);
+        var secondLeftNode = document.createTextNode(secondsLeft.toString());
+        setInterval(() => {
+            secondLeftNode.innerHTML = Math.floor((timer.expire - Date.now()) / 1000);
+        }, 1000);
+        expireCol.appendChild(secondLeftNode);
+
+        var dateCol = document.createElement('td');
+        dateCol.appendChild(document.createTextNode(new Date(timer.expire).toLocaleString()));
+
+        row.appendChild(urlCol);
+        row.appendChild(expireCol);
+        row.appendChild(dateCol);
+
+        timerListEl.appendChild(row);
+    });
+
+    if (timerList.length > 0) {
+        table.classList.remove('hidden');
+    }
+    else {
+        if (!timerList.classList.contains('remove')) {
+            table.classList.add('hidden');
+        }
+    }
 }
 
 function clearError() {

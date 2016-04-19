@@ -1,5 +1,5 @@
 html {
-    width: 350px;
+    width: 450px;
 }
 html, body {
 }
@@ -22,4 +22,8 @@ html, body {
 
 #inputTime {
     width: 50px;
+}
+
+#table {
+    text-align: center;
 }

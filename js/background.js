@@ -77,7 +77,7 @@ var timerCount = 0;
 
 main();
 
-setInterval(() => {
+var mainInterval = setInterval(() => {
     main();
 }, REFRESH_INTERVAL);
 
@@ -166,7 +166,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 sendResponse({status: 'NOK', error: verification});
             }
             break;
-        case 'getAllTimer':
+        case 'getTimerList':
             sendResponse({status: 'OK', timerList: timerList});
             break;
         case 'updateTimer':
