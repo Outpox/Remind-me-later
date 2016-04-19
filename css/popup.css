@@ -21,6 +21,10 @@ td {
     display: none;
 }
 
+.pointerCursor {
+    cursor: pointer;
+}
+
 #url {
     font-size: 15px;
 }
