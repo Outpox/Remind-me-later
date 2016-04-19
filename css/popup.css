@@ -4,6 +4,15 @@ html {
 html, body {
 }
 
+table, th, td {
+    border: 1px solid #000;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 0 5px;
+}
+
 .formContainer {
     text-align: center;
 }
