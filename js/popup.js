@@ -58,14 +58,15 @@ timerTypeSelect.addEventListener('change', e => {
 });
 
 timeForm.addEventListener('submit', e => {
-    var expire = Date.now() + inputTime.value * 1000;
+    var expire = Date.now() + inputTime.value * 1000 * 60;
     newTimer(url, expire);
     e.preventDefault();
     //window.close();
 });
 
 dateTimeForm.addEventListener('submit', e => {
-    var expire = inputDateTime.valueAsNumber;
+    //http://stackoverflow.com/a/24717734/3560404
+    var expire = new Date(inputDateTime.value.replace(/-/g,'/').replace('T',' ')).getTime();
     newTimer(url, expire);
     e.preventDefault();
     //window.close();
@@ -159,28 +160,28 @@ function newTimerNotification(url, expire) {
 function updateTimerList(newTimerList) {
     if (newTimerList != undefined) timerList = newTimerList;
 
-    timerList.innerHTML = '';
-
-    // while (timerList.firstChild) {
-    //     timerList.removeChild(timerList.firstChild);
-    // }
+    while (timerListEl.firstChild) {
+        timerListEl.removeChild(timerListEl.firstChild);
+    }
 
     timerList.forEach(timer => {
-        var row = document.createElement('tr');
+        let row = document.createElement('tr');
 
-        var urlCol = document.createElement('td');
+        let urlCol = document.createElement('td');
         urlCol.appendChild(document.createTextNode(cutUrl(timer.url, true)));
 
-        var expireCol = document.createElement('td');
+        let expireCol = document.createElement('td');
         expireCol.classList.add('expire');
-        var secondsLeft = Math.floor((timer.expire - Date.now()) / 1000);
-        var secondLeftNode = document.createTextNode(secondsLeft.toString());
+        let secondsLeft = Math.floor((timer.expire - Date.now()) / 1000);
+        expireCol.dataset.expire = secondsLeft;
+        let decomposedTime = breakdownTime(secondsLeft);
+        let secondLeftNode = document.createTextNode(decomposedTime.toString());
         expireCol.appendChild(secondLeftNode);
 
-        var dateCol = document.createElement('td');
+        let dateCol = document.createElement('td');
         dateCol.appendChild(document.createTextNode(new Date(timer.expire).toLocaleString()));
 
-        var actionCol = document.createElement('td');
+        let actionCol = document.createElement('td');
         let del = document.createElement('span');
         let delText = document.createTextNode('D');
         del.addEventListener('click', e => {
@@ -221,21 +222,58 @@ function updateTimerList(newTimerList) {
 function decrementTimersExpiration() {
     let expireCols = document.getElementsByClassName('expire');
     for (let i = 0; i < expireCols.length; i++) {
-        let expire = expireCols[i];
-        if (parseInt(expire.innerHTML) > 0) {
+        let expire = expireCols[i].dataset.expire,
+            elem = expireCols[i];
+        if (parseInt(expire) > 0) {
             setInterval(()=> {
-                if (parseInt(expire.innerHTML) > 0) {
-                    expire.innerHTML = parseInt(expire.innerHTML) - 1;
+                expire = parseInt(expire) - 1;
+                expireCols[i].dataset.expire = expire;
+                if (parseInt(expire) > 0) {
+                    elem.innerHTML = breakdownTime(expire);
                 }
                 else {
-                    expire.innerHTML = 'Expired';
+                    elem.innerHTML = 'Expired';
                 }
             }, 1000);
         }
         else {
-            expire.innerHTML = 'Expired';
+            elem.innerHTML = 'Expired';
         }
     }
+}
+
+function breakdownTime(seconds) {
+    let value = {};
+    value.days = Math.floor(seconds / 86400);
+    seconds -= value.days * 86400;
+
+    value.hours = Math.floor(seconds / 3600) % 24;
+    seconds -= value.hours * 3600;
+
+    value.minutes = Math.floor(seconds / 60) % 60;
+    seconds -= value.minutes * 60;
+
+    value.seconds = seconds % 60;
+
+    value.toString = function () {
+        let s = '',
+            self = this;
+        if (self.days) {
+            self.days > 1 ? s += self.days + ' days' : s += self.days + ' day';
+        }
+        if (self.hours) {
+            self.hours > 1 ? s += ' ' + self.hours + ' hours' : s += ' ' + self.hours + ' hour';
+        }
+        if (self.minutes) {
+           self.minutes > 1 ? s += ' ' + self.minutes + ' minutes' : s += ' ' + self.minutes + ' minute';
+        }
+
+        self.seconds > 1 ? s += ' ' + self.seconds + ' seconds' : s += ' ' + self.seconds + ' second';
+
+        return s.trim();
+    };
+
+    return value;
 }
 
 function saveTimerMode(mode) {
