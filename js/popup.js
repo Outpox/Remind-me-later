@@ -225,7 +225,7 @@ function decrementTimersExpiration() {
         let expire = expireCols[i].dataset.expire,
             elem = expireCols[i];
         if (parseInt(expire) > 0) {
-            setInterval(()=> {
+            let interval = setInterval(()=> {
                 expire = parseInt(expire) - 1;
                 expireCols[i].dataset.expire = expire;
                 if (parseInt(expire) > 0) {
@@ -233,6 +233,7 @@ function decrementTimersExpiration() {
                 }
                 else {
                     elem.innerHTML = 'Expired';
+                    clearInterval(interval);
                 }
             }, 1000);
         }
