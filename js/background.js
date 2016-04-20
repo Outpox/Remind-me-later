@@ -61,17 +61,6 @@ class Timer {
         this.disabled = false;
         timerList.push(this);
     }
-
-    update(url, expire) {
-        this.url = url;
-        this.expire = expire;
-        this.edited = Date.now();
-    }
-
-    remove() {
-        var self = this;
-        timerList.removeTimer(self.id);
-    }
 }
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
@@ -112,10 +101,11 @@ function checkForExpiredTimers() {
                 if (buttonIndex == 0) {
                     window.open(timer.url);
                 }
-                timer.remove();
+                removeTimer(timer);
                 updatePopupTimerList();
                 chrome.notifications.clear(notificationId);
-            })
+            });
+            saveTimerList();
         }
     });
 }
@@ -184,6 +174,16 @@ function updatePopupTimerList() {
         action: "updateTimerList",
         data: {timerList: timerList}
     });
+}
+
+function updateTimer(timer, url, expire) {
+    timer.url = url;
+    timer.expire = expire;
+    timer.edited = Date.now();
+}
+
+function removeTimer(timer) {
+    timerList.removeTimer(timer.id);
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
