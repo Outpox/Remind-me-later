@@ -4,8 +4,8 @@
 /////////////////////////////////////////////////////////////////////////
 class TimerList extends Array {
     existTimer(id) {
-        var timer;
-        for (var i = 0; i < this.length; i++) {
+        let timer;
+        for (let i = 0; i < this.length; i++) {
             timer = timerList[i];
             if (timer.id === id) {
                 return true;
@@ -15,8 +15,8 @@ class TimerList extends Array {
     }
 
     getTimer(id) {
-        var timer;
-        for (var i = 0; i < this.length; i++) {
+        let timer;
+        for (let i = 0; i < this.length; i++) {
             timer = timerList[i];
             if (timer.id = id) {
                 return timer;
@@ -26,9 +26,9 @@ class TimerList extends Array {
     }
 
     removeTimer(id) {
-        var timer;
-        var self = this;
-        for (var i = 0; i < this.length; i++) {
+        let timer;
+        let self = this;
+        for (let i = 0; i < this.length; i++) {
             timer = timerList[i];
             if (timer.id === id) {
                 self = self.splice(i, 1);
@@ -36,6 +36,11 @@ class TimerList extends Array {
             }
         }
         return false;
+    }
+
+    static copy(newTimerList) {
+        let self = this;
+        
     }
 }
 
@@ -82,7 +87,7 @@ var mainInterval = setInterval(() => {
 }, REFRESH_INTERVAL);
 
 function main() {
-    console.log(timerList);
+    // console.log(timerList);
     checkForExpiredTimers();
 }
 
@@ -147,6 +152,12 @@ function verifyUpdateTimerData(id, url, expireDate) {
     }
 }
 
+function syncTimerList() {
+    chrome.storage.sync.set({timerList: timerList}, () => {
+        console.log('synced');
+    })
+}
+
 function updatePopupTimerList() {
     chrome.runtime.sendMessage({
         action: "updateTimerList",
@@ -163,6 +174,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (verification === true) {
                 new Timer(request.data.url, request.data.expire);
                 sendResponse({status: 'OK', timerList: timerList});
+                syncTimerList();
             } else {
                 sendResponse({status: 'NOK', error: verification});
             }
@@ -183,6 +195,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (timerList.existTimer(request.data.id)) {
                 timerList.removeTimer(request.data.id);
                 sendResponse({status: 'OK', timerList: timerList});
+                syncTimerList();
             }
             else {
                 sendResponse({status: 'NOK', error: ERROR_NO_SUCH_TIMER});
@@ -194,6 +207,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({status: 'OK', timerList: timerList});
     }
 });
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (let key in changes) {
+        let storageChange = changes[key];
+        if (key === 'timerList') {
+            console.log(JSON.stringify(timerList) === JSON.stringify(storageChange.newValue));
+            console.log(JSON.stringify(timerList));
+            console.log(JSON.stringify(storageChange.newValue));
+            console.log(timerList.sameAs(storageChange.newValue));
+        }
+
+        console.log('Storage key "%s" in namespace "%s" changed. ' +
+                      'Old value was "%s", new value is "%s".',
+                      key,
+                      namespace,
+                      storageChange.oldValue,
+                      storageChange.newValue);
+    }
+})
 
 const ERROR_INVALID_URL = {code: 1, message: 'URL is not valid.'};
 const ERROR_BAD_DATE = {code: 2, message: 'Expire date must be in the future.'};
