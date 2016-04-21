@@ -1,4 +1,6 @@
-var url,
+let url,
+    urlSpan = document.getElementById('url'),
+    urlEditor = document.getElementById('urlEditor'),
     errorSpan = document.getElementById('error'),
     timeForm = document.getElementById('timeForm'),
     dateTimeForm = document.getElementById('dateTimeForm'),
@@ -20,9 +22,7 @@ chrome.tabs.query({
         url = tabs[0].url;
         document.getElementById('url').innerHTML = cutUrl(url);
         if (url.match(/^(chrome:\/\/).?[a-z0-9]*/i)) {
-            timeSubmit.disabled = true;
-            dateTimeSubmit.disabled = true;
-            errorSpan.innerHTML = 'Error chrome:// links cannot be saved';
+            errorSpan.innerHTML = 'Warning! I won\'t be able to open chrome:// links for you.';
         }
     });
 
@@ -70,6 +70,20 @@ dateTimeForm.addEventListener('submit', e => {
     newTimer(url, expire);
     e.preventDefault();
     //window.close();
+});
+
+urlSpan.addEventListener('click', e => {
+    urlSpan.classList.add('hidden');
+    urlEditor.value = url;
+    urlEditor.classList.remove('hidden');
+    urlEditor.focus();
+});
+
+urlEditor.addEventListener('blur', e => {
+    url = urlEditor.value;
+    urlSpan.innerHTML = cutUrl(urlEditor.value);
+    urlSpan.classList.remove('hidden');
+    urlEditor.classList.add('hidden');
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

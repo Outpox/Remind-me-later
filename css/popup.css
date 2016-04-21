@@ -13,6 +13,10 @@ td {
     padding: 0 5px;
 }
 
+table {
+    width: 435px;
+}
+
 .formContainer {
     text-align: center;
 }
